@@ -2,6 +2,8 @@ package kubernetes
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/sablierapp/sablier/app/discovery"
 	"github.com/sablierapp/sablier/app/types"
 	log "github.com/sirupsen/logrus"
@@ -10,7 +12,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
-	"strconv"
 )
 
 const (
@@ -46,6 +47,7 @@ func (provider *KubernetesProvider) deploymentList(ctx context.Context) ([]types
 	}
 	selector := labels.NewSelector()
 	selector = selector.Add(*requirement, *requirementDeprecated)
+	log.Trace("Listing all Deployments with labelSelector: ", selector.String())
 	deployments, err := provider.Client.AppsV1().Deployments(core_v1.NamespaceAll).List(ctx, metav1.ListOptions{
 		LabelSelector: selector.String(),
 	})
@@ -111,6 +113,7 @@ func (provider *KubernetesProvider) statefulSetList(ctx context.Context) ([]type
 	}
 	selector := labels.NewSelector()
 	selector = selector.Add(*requirement, *requirementDeprecated)
+	log.Trace("Listing all StatefulSets with labelSelector: ", selector.String())
 	statefulSets, err := provider.Client.AppsV1().StatefulSets(core_v1.NamespaceAll).List(ctx, metav1.ListOptions{
 		LabelSelector: selector.String(),
 	})
@@ -121,6 +124,7 @@ func (provider *KubernetesProvider) statefulSetList(ctx context.Context) ([]type
 
 	instances := make([]types.Instance, 0, len(statefulSets.Items))
 	for _, ss := range statefulSets.Items {
+		log.Trace("Statefulset found: ", ss.Name)
 		instance := provider.statefulSetToInstance(ss)
 		instances = append(instances, instance)
 	}

@@ -3,9 +3,11 @@ package kubernetes
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/sablierapp/sablier/app/discovery"
 	"github.com/sablierapp/sablier/app/providers"
-	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
 	core_v1 "k8s.io/api/core/v1"
@@ -44,7 +46,7 @@ func NewKubernetesProvider(providerConfig providerConfig.Kubernetes) (*Kubernete
 	kubeclientConfig.QPS = providerConfig.QPS
 	kubeclientConfig.Burst = providerConfig.Burst
 
-	log.Debug(fmt.Sprintf("Provider configuration:  QPS=%v, Burst=%v", kubeclientConfig.QPS, kubeclientConfig.Burst))
+	log.Debug(fmt.Sprintf("Provider configuration: QPS=%v, Burst=%v", kubeclientConfig.QPS, kubeclientConfig.Burst))
 
 	client, err := kubernetes.NewForConfig(kubeclientConfig)
 	if err != nil {
@@ -63,6 +65,7 @@ func (provider *KubernetesProvider) Start(ctx context.Context, name string) erro
 	if err != nil {
 		return err
 	}
+	log.Trace(fmt.Sprintf("Scaling up %s %s to %s replicas", parsed.Name, parsed.Kind, strconv.Itoa(int(parsed.Replicas))))
 
 	return provider.scale(ctx, parsed, parsed.Replicas)
 }
@@ -72,6 +75,7 @@ func (provider *KubernetesProvider) Stop(ctx context.Context, name string) error
 	if err != nil {
 		return err
 	}
+	log.Trace(fmt.Sprintf("Scaling down %s %s to %s replicas", parsed.Name, parsed.Kind, strconv.Itoa(int(parsed.Replicas))))
 
 	return provider.scale(ctx, parsed, 0)
 

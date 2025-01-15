@@ -45,7 +45,7 @@ func DeploymentName(deployment v1.Deployment, opts ParseOptions) ParsedName {
 	kind := "deployment"
 	namespace := deployment.Namespace
 	name := deployment.Name
-	// TOOD: Use annotation for scale
+	// TODO: Use annotation for scale
 	original := fmt.Sprintf("%s%s%s%s%s%s%d", kind, opts.Delimiter, namespace, opts.Delimiter, name, opts.Delimiter, 1)
 
 	return ParsedName{

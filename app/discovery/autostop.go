@@ -2,6 +2,7 @@ package discovery
 
 import (
 	"context"
+
 	"github.com/sablierapp/sablier/app/providers"
 	"github.com/sablierapp/sablier/pkg/arrays"
 	log "github.com/sirupsen/logrus"
@@ -28,7 +29,7 @@ func StopAllUnregisteredInstances(ctx context.Context, provider providers.Provid
 	}
 
 	unregistered := arrays.RemoveElements(names, registered)
-	log.Tracef("Found %v unregistered instances ", len(instances))
+	log.Tracef("Found %v unregistered instances", len(instances))
 
 	waitGroup := errgroup.Group{}
 
