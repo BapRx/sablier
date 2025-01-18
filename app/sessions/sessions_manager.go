@@ -164,7 +164,6 @@ func (s *SessionsManager) RequestSession(names []string, duration time.Duration)
 }
 
 func (s *SessionsManager) RequestSessionGroup(group string, duration time.Duration) (sessionState *SessionState) {
-
 	if len(group) == 0 {
 		return nil
 	}

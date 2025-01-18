@@ -25,6 +25,7 @@ func StopAllUnregisteredInstances(ctx context.Context, provider providers.Provid
 	log.Tracef("Found %v instances", len(instances))
 	names := make([]string, 0, len(instances))
 	for _, instance := range instances {
+		log.Tracef("Found %v instance %v in group %v", instance.Kind, instance.Name, instance.Group)
 		names = append(names, instance.Name)
 	}
 

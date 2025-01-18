@@ -3,12 +3,13 @@ package docker
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	dockertypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/sablierapp/sablier/app/discovery"
 	"github.com/sablierapp/sablier/app/types"
-	"strings"
 )
 
 func (provider *DockerClassicProvider) List(ctx context.Context) ([]types.Instance, error) {

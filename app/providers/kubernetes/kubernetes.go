@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/sablierapp/sablier/app/discovery"
 	"github.com/sablierapp/sablier/app/providers"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -77,7 +76,7 @@ func (provider *KubernetesProvider) Stop(ctx context.Context, name string) error
 	if err != nil {
 		return err
 	}
-	log.Trace(fmt.Sprintf("Scaling down %s %s to %s replicas", parsed.Name, parsed.Kind, strconv.Itoa(int(parsed.Replicas))))
+	log.Trace(fmt.Sprintf("Scaling down %s %s to 0 replicas", parsed.Name, parsed.Kind))
 
 	return provider.scale(ctx, parsed, 0)
 
@@ -101,9 +100,9 @@ func (provider *KubernetesProvider) GetGroups(ctx context.Context) (map[string][
 	groups := make(map[string][]string)
 
 	for _, deployment := range deployments.Items {
-		groupName := deployment.Labels[discovery.LabelGroup]
+		groupName := deployment.Labels[LabelGroup]
 		if len(groupName) == 0 {
-			groupName = discovery.LabelGroupDefaultValue
+			groupName = LabelGroupDefaultValue
 		}
 
 		group := groups[groupName]
@@ -121,9 +120,9 @@ func (provider *KubernetesProvider) GetGroups(ctx context.Context) (map[string][
 	}
 
 	for _, statefulSet := range statefulSets.Items {
-		groupName := statefulSet.Labels[discovery.LabelGroup]
+		groupName := statefulSet.Labels[LabelGroup]
 		if len(groupName) == 0 {
-			groupName = discovery.LabelGroupDefaultValue
+			groupName = LabelGroupDefaultValue
 		}
 
 		group := groups[groupName]
