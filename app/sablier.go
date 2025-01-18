@@ -3,11 +3,12 @@ package app
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/sablierapp/sablier/app/discovery"
 	"github.com/sablierapp/sablier/app/providers/docker"
 	"github.com/sablierapp/sablier/app/providers/dockerswarm"
 	"github.com/sablierapp/sablier/app/providers/kubernetes"
-	"os"
 
 	"github.com/sablierapp/sablier/app/http"
 	"github.com/sablierapp/sablier/app/instance"
@@ -112,6 +113,7 @@ func loadSessions(storage storage.Storage, sessions sessions.Manager) {
 }
 
 func saveSessions(storage storage.Storage, sessions sessions.Manager) {
+	log.Debug("saving sessions to storage")
 	writer, err := storage.Writer()
 	if err != nil {
 		log.Error("error saving sessions", err)

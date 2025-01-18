@@ -17,6 +17,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -82,15 +84,22 @@ func (provider *KubernetesProvider) Stop(ctx context.Context, name string) error
 }
 
 func (provider *KubernetesProvider) GetGroups(ctx context.Context) (map[string][]string, error) {
+	requirement, err := labels.NewRequirement(LabelEnable, selection.Equals, []string{"true"})
+	if err != nil {
+		return nil, err
+	}
+	selector := labels.NewSelector()
+	selector = selector.Add(*requirement)
+
 	deployments, err := provider.Client.AppsV1().Deployments(core_v1.NamespaceAll).List(ctx, metav1.ListOptions{
-		LabelSelector: discovery.LabelEnable,
+		LabelSelector: selector.String(),
 	})
 
 	if err != nil {
 		return nil, err
 	}
-
 	groups := make(map[string][]string)
+
 	for _, deployment := range deployments.Items {
 		groupName := deployment.Labels[discovery.LabelGroup]
 		if len(groupName) == 0 {
@@ -104,7 +113,7 @@ func (provider *KubernetesProvider) GetGroups(ctx context.Context) (map[string][
 	}
 
 	statefulSets, err := provider.Client.AppsV1().StatefulSets(core_v1.NamespaceAll).List(ctx, metav1.ListOptions{
-		LabelSelector: discovery.LabelEnable,
+		LabelSelector: selector.String(),
 	})
 
 	if err != nil {

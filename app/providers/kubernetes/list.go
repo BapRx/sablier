@@ -4,7 +4,6 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/sablierapp/sablier/app/discovery"
 	"github.com/sablierapp/sablier/app/types"
 	log "github.com/sirupsen/logrus"
 	v1 "k8s.io/api/apps/v1"
@@ -41,12 +40,8 @@ func (provider *KubernetesProvider) deploymentList(ctx context.Context) ([]types
 	if err != nil {
 		return nil, err
 	}
-	requirementDeprecated, err := labels.NewRequirement(discovery.LabelEnable, selection.Equals, []string{"true"})
-	if err != nil {
-		return nil, err
-	}
 	selector := labels.NewSelector()
-	selector = selector.Add(*requirement, *requirementDeprecated)
+	selector = selector.Add(*requirement)
 	log.Trace("Listing all Deployments with labelSelector: ", selector.String())
 	deployments, err := provider.Client.AppsV1().Deployments(core_v1.NamespaceAll).List(ctx, metav1.ListOptions{
 		LabelSelector: selector.String(),
@@ -58,6 +53,7 @@ func (provider *KubernetesProvider) deploymentList(ctx context.Context) ([]types
 
 	instances := make([]types.Instance, 0, len(deployments.Items))
 	for _, d := range deployments.Items {
+		log.Trace("Deployment found: ", d.Name)
 		instance := provider.deploymentToInstance(d)
 		instances = append(instances, instance)
 	}
@@ -107,12 +103,8 @@ func (provider *KubernetesProvider) statefulSetList(ctx context.Context) ([]type
 	if err != nil {
 		return nil, err
 	}
-	requirementDeprecated, err := labels.NewRequirement(discovery.LabelEnable, selection.Equals, []string{"true"})
-	if err != nil {
-		return nil, err
-	}
 	selector := labels.NewSelector()
-	selector = selector.Add(*requirement, *requirementDeprecated)
+	selector = selector.Add(*requirement)
 	log.Trace("Listing all StatefulSets with labelSelector: ", selector.String())
 	statefulSets, err := provider.Client.AppsV1().StatefulSets(core_v1.NamespaceAll).List(ctx, metav1.ListOptions{
 		LabelSelector: selector.String(),

@@ -57,12 +57,15 @@ func (s *ServeStrategy) ServeDynamic(c *gin.Context) {
 
 	var sessionState *sessions.SessionState
 	if len(request.Names) > 0 {
+		log.Trace("Requesting session for names: ", request.Names)
 		sessionState = s.SessionsManager.RequestSession(request.Names, request.SessionDuration)
 	} else {
+		log.Trace("Requesting session for group: ", request.Group)
 		sessionState = s.SessionsManager.RequestSessionGroup(request.Group, request.SessionDuration)
 	}
 
 	if sessionState == nil {
+		log.Trace("Session not found")
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -109,8 +112,10 @@ func (s *ServeStrategy) ServeBlocking(c *gin.Context) {
 	var sessionState *sessions.SessionState
 	var err error
 	if len(request.Names) > 0 {
+		log.Trace("Requesting session for names: ", request.Names)
 		sessionState, err = s.SessionsManager.RequestReadySession(c.Request.Context(), request.Names, request.SessionDuration, request.Timeout)
 	} else {
+		log.Trace("Requesting session for group: ", request.Group)
 		sessionState, err = s.SessionsManager.RequestReadySessionGroup(c.Request.Context(), request.Group, request.SessionDuration, request.Timeout)
 	}
 
@@ -120,6 +125,7 @@ func (s *ServeStrategy) ServeBlocking(c *gin.Context) {
 	}
 
 	if sessionState == nil {
+		log.Trace("Session not found")
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}

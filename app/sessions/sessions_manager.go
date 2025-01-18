@@ -278,7 +278,13 @@ func (s *SessionsManager) RequestReadySessionGroup(ctx context.Context, group st
 		return nil, fmt.Errorf("group has no member")
 	}
 
-	return s.RequestReadySession(ctx, names, duration, timeout)
+	session, err := s.RequestReadySession(ctx, names, duration, timeout)
+
+	if err != nil {
+		log.Warnf("error requesting ready session for group %s: %s", group, err.Error())
+	}
+
+	return session, err
 }
 
 func (s *SessionsManager) ExpiresAfter(instance *instance.State, duration time.Duration) {
@@ -286,6 +292,8 @@ func (s *SessionsManager) ExpiresAfter(instance *instance.State, duration time.D
 }
 
 func (s *SessionsManager) Stop() {
+	log.Debug("stopping sessions manager")
+
 	// Stop event listeners
 	s.cancel()
 
